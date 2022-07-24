@@ -11,6 +11,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return this.configService.get('DATABASE_HOST');
+    return 'hello';
   }
 }
