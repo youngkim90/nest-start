@@ -4,7 +4,7 @@ import { EmailService } from '../email/email.service';
 import { UserInfo } from './UserInfo';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entity/user.entity';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { ulid } from 'ulid';
 
 @Injectable()
@@ -13,6 +13,7 @@ export class UsersService {
     private emailService: EmailService,
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
+    private connection: Connection,
   ) {}
 
   async createUser(name: string, email: string, password: string) {
@@ -41,13 +42,17 @@ export class UsersService {
     password: string,
     signupVerifyToken: string,
   ) {
-    const user = new UserEntity();
-    user.id = ulid();
-    user.name = name;
-    user.email = email;
-    user.password = password;
-    user.signupVerifyToken = signupVerifyToken;
-    await this.usersRepository.save(user);
+    // 트랜잭션 적용
+    await this.connection.transaction(async (manager) => {
+      const user = new UserEntity();
+      user.id = ulid();
+      user.name = name;
+      user.email = email;
+      user.password = password;
+      user.signupVerifyToken = signupVerifyToken;
+
+      await manager.save(user); //EntityManager
+    });
   }
 
   private async sendMemberJoinEmail(email: string, signupVerifyToken: string) {
