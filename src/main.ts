@@ -15,4 +15,5 @@ async function bootstrap() {
   app.useGlobalGuards(new AuthGuard());
   await app.listen(3000);
 }
+
 bootstrap();
