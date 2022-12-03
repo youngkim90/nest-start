@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 interface User {
@@ -15,5 +15,20 @@ export class AuthService {
     const payload = { ...user };
 
     return this.jwtService.sign(payload, { expiresIn: '1d' });
+  }
+
+  verify(jwtToken: string) {
+    try {
+      const payload = this.jwtService.verify(jwtToken) as User;
+
+      const { id, email } = payload;
+
+      return {
+        userId: id,
+        email,
+      };
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
   }
 }

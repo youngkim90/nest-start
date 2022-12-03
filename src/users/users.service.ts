@@ -96,6 +96,15 @@ export class UsersService {
   }
 
   async getUserInfo(userId: string): Promise<UserInfo> {
-    throw new Error('Method not implemented.'); // 일단 DB구축 필요
+    const user = await this.usersRepository.findOne({ id: userId });
+
+    if (!user) {
+      throw new NotFoundException('유저가 존재하지 않습니다');
+    }
+
+    return {
+      name: user.name,
+      email: user.email,
+    };
   }
 }
